@@ -1,0 +1,33 @@
+#ignore target dir
+target*/
+
+#
+# Eclipse project files
+#
+#.classpath
+#.project
+#.settings*/
+.springBeans
+.metadata/
+war*/
+
+#
+# IntelliJ IDEA project files
+#
+.idea*/
+*.ipr
+*.iml
+*.iws
+*.ids
+scripts*/
+atlassian-ide-plugin.xml
+
+#ignore NetBeans project files
+nb-configuration.xml
+profiles.xml
+catalog.xml
+nbactions.xml
+
+#ignore OS files
+Thumbs.db
+.DS_Store
