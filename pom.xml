@@ -6,7 +6,7 @@
 
   <groupId>net.elost</groupId>
   <artifactId>http-client</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2</version>
   <packaging>bundle</packaging>
 
   <dependencies>
