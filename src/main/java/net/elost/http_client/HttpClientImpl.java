@@ -8,6 +8,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpClientImpl implements HttpClient {
+  private int connectTimeoutMillis;
+  private int readTimeoutMillis;
+
+  /**
+   * <b>IMPORTANT</b>
+   * This constructor does not set any timeouts on connection.
+   * It's strongly recommended to set global timeouts if you use this constructor.
+   * For HotSpot JVM global timeouts can be set with
+   * <i>sun.net.client.defaultConnectTimeout</i> and <i>sun.net.client.defaultReadTimeout</i>.
+   *
+   * @see <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/net/properties.html">Java 8 Oracle Networking Properties</a>.
+   */
+  public HttpClientImpl() {
+  }
+
+  public HttpClientImpl(int connectTimeoutMillis, int readTimeoutMillis) {
+    this.connectTimeoutMillis = connectTimeoutMillis;
+    this.readTimeoutMillis = readTimeoutMillis;
+  }
 
   @Override
   public HttpResponse sendRequest(HttpMethod method, String url, String input, String contentType) {
@@ -43,6 +62,8 @@ public class HttpClientImpl implements HttpClient {
       connection.setRequestProperty("Content-Type", contentType);
       headers.forEach(connection::setRequestProperty);
       connection.setDoOutput(true);
+      connection.setConnectTimeout(connectTimeoutMillis);
+      connection.setReadTimeout(readTimeoutMillis);
       return connection;
     }
     catch (IOException connectionException) {

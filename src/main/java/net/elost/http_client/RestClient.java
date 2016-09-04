@@ -11,9 +11,23 @@ public class RestClient {
   private final String endpointUrl;
   private HttpClient httpClient;
 
+  /**
+   * <b>IMPORTANT</b>
+   * This constructor does not set any timeouts on connection.
+   * It's strongly recommended to set global timeouts if you use this constructor.
+   * For HotSpot JVM global timeouts can be set with
+   * <i>sun.net.client.defaultConnectTimeout</i> and <i>sun.net.client.defaultReadTimeout</i>.
+   *
+   * @see <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/net/properties.html">Java 8 Oracle Networking Properties</a>.
+   */
   private RestClient(String endpointUrl) {
     this.endpointUrl = endpointUrl;
     httpClient = new HttpClientImpl();
+  }
+
+  public RestClient(String endpointUrl, int connectTimeoutMillis, int readTimeoutMillis) {
+    this.endpointUrl = endpointUrl;
+    httpClient = new HttpClientImpl(connectTimeoutMillis, readTimeoutMillis);
   }
 
   public void get(String path, Object input) {
