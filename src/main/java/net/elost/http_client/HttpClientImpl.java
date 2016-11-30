@@ -70,7 +70,7 @@ public class HttpClientImpl implements HttpClient {
     sendRequest(connection, input);
 
     int status = getResponseCode(connection);
-    if(status == 200) {
+    if(status >=200 && status < 300) {
       return readResultStream(connection, bufferSize);
     } else {
       throw new RuntimeException(String.format("Bad server response. Status %d", status));
