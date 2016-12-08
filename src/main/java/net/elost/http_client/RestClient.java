@@ -1,11 +1,16 @@
 package net.elost.http_client;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.Streams;
 
 public class RestClient {
   private final String endpointUrl;
@@ -50,6 +55,10 @@ public class RestClient {
     return sendRequest(HttpMethod.POST, path, input, resultClass);
   }
 
+  public <T> T post(String path, Object input, Class<T> resultClass, Map<String, String> headers) {
+    return sendRequest(HttpMethod.POST, path, input, resultClass, headers);
+  }
+
   public <T> T post(String path, Object input, Type typeOfResult) {
     return sendRequest(HttpMethod.POST, path, input, typeOfResult);
   }
@@ -84,11 +93,15 @@ public class RestClient {
     checkResponseCode(response);
   }
 
-  private <T> T sendRequest(HttpMethod method, String path, Object input, Class<T> resultClass) {
+  private <T> T sendRequest(HttpMethod method, String path, Object input, Class<T> resultClass, Map<String, String> headers) {
     String inputJson = new Gson().toJson(input);
-    HttpResponse response = httpClient.sendRequest(method, path, inputJson, "application/json");
-    checkResponseCode(response);
-    return deserializeResult(response, resultClass);
+    if(resultClass.isAssignableFrom(InputStream.class)){
+      InputStream is = httpClient.sendRequestGetStream(method, path, inputJson, headers);
+      return (T) is;
+    }else {
+      HttpResponse response = httpClient.sendRequest(method, path, inputJson, "application/json");
+      checkResponseCode(response);
+      return deserializeResult(response, resultClass);}
   }
 
   private <T> T sendRequest(HttpMethod method, String path, Object input, Type typeOfResult) {

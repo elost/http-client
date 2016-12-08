@@ -45,6 +45,17 @@ public class HttpClientImpl implements HttpClient {
     }
   }
 
+  @Override
+  public InputStream sendRequestGetStream(HttpMethod method, String url, String input, Map<String, String> headers) {
+    HttpURLConnection connection = connect(method, url, input, headers);
+    //try {
+      return trySendRequestGetStream(connection, input);
+    /*}
+    finally {
+      connection.disconnect();
+    }*/
+  }
+
   private HttpResponse trySendRequest(HttpMethod method, HttpURLConnection connection, String input) {
     sendRequest(connection, input);
 
@@ -52,6 +63,18 @@ public class HttpClientImpl implements HttpClient {
     String result = readResult(connection);
 
     return new HttpResponse(method, connection.getURL().toString(), input, status, result);
+  }
+
+  private InputStream trySendRequestGetStream(HttpURLConnection connection, String input) {
+    int bufferSize = 8192;//bytes
+    sendRequest(connection, input);
+
+    int status = getResponseCode(connection);
+    if(status >=200 && status < 300) {
+      return readResultStream(connection, bufferSize);
+    } else {
+      throw new RuntimeException(String.format("Bad server response. Status %d", status));
+    }
   }
 
   private HttpURLConnection connect(HttpMethod method, String url, String contentType, Map<String, String> headers) {
@@ -106,6 +129,18 @@ public class HttpClientImpl implements HttpClient {
   private String readResult(HttpURLConnection connection) {
     try {
       return readResultString(connection);
+    }
+    catch (IOException e) {
+      throw new HttpCallException(String.format(
+          "Can't read response from api call to %s",
+          connection.getURL()
+      ), e);
+    }
+  }
+
+  private InputStream readResultStream(HttpURLConnection connection, int bufferSize) {
+    try {
+      return connection.getInputStream();
     }
     catch (IOException e) {
       throw new HttpCallException(String.format(
