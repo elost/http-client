@@ -49,7 +49,7 @@ public class HttpClientImpl implements HttpClient {
   public InputStream sendRequestGetStream(HttpMethod method, String url, String input, Map<String, String> headers) {
     HttpURLConnection connection = connect(method, url, input, headers);
     //try {
-      return trySendRequestGetStream(method, connection, input);
+      return trySendRequestGetStream(connection, input);
     /*}
     finally {
       connection.disconnect();
@@ -65,7 +65,7 @@ public class HttpClientImpl implements HttpClient {
     return new HttpResponse(method, connection.getURL().toString(), input, status, result);
   }
 
-  private InputStream trySendRequestGetStream(HttpMethod method, HttpURLConnection connection, String input) {
+  private InputStream trySendRequestGetStream(HttpURLConnection connection, String input) {
     int bufferSize = 8192;//bytes
     sendRequest(connection, input);
 

@@ -6,7 +6,7 @@
 
   <groupId>net.elost</groupId>
   <artifactId>http-client</artifactId>
-  <version>0.2</version>
+  <version>0.3</version>
   <packaging>bundle</packaging>
 
   <dependencies>
@@ -16,6 +16,19 @@
       <version>2.3.1</version>
     </dependency>
   </dependencies>
+
+  <distributionManagement>
+    <repository>
+      <id>central</id>
+      <name>ASD CG Release repository</name>
+      <url>http://artifactory.cg.ru/artifactory/libs-releases-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>ASD CG Snapshots repository</name>
+      <url>http://artifactory.cg.ru/artifactory/libs-snapshots-local</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <pluginManagement>
