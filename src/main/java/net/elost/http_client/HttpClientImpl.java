@@ -34,7 +34,13 @@ public class HttpClientImpl implements HttpClient {
   }
 
   @Override
-  public HttpResponse sendRequest(HttpMethod method, String url, String input, String contentType, Map<String, String> headers) {
+  public HttpResponse sendRequest(
+      HttpMethod method,
+      String url,
+      String input,
+      String contentType,
+      Map<String, String> headers
+  ) {
     HttpURLConnection connection = connect(method, url, contentType, headers);
 
     try {
@@ -49,9 +55,14 @@ public class HttpClientImpl implements HttpClient {
     sendRequest(connection, input);
 
     int status = getResponseCode(connection);
-    String result = readResult(connection);
-
-    return new HttpResponse(method, connection.getURL().toString(), input, status, result);
+    if (isOctetStream(connection)) {
+      byte[] result = tryReadBinaryResult(connection);
+      return new HttpResponse(method, connection.getURL().toString(), input, status, result);
+    }
+    else {
+      String result = tryReadResultString(connection);
+      return new HttpResponse(method, connection.getURL().toString(), input, status, result);
+    }
   }
 
   private HttpURLConnection connect(HttpMethod method, String url, String contentType, Map<String, String> headers) {
@@ -84,13 +95,8 @@ public class HttpClientImpl implements HttpClient {
           "Failed to connect to url: %s", connection.getURL()
       ), connectionException);
     }
-    catch (IOException e) {
-      int responseCode = getResponseCode(connection);
-      String responseBody = readResult(connection);
-      throw new HttpCallException(String.format(
-          "Failed to call api endpoint [%s], input: [%s], status: [%s], response: %s",
-          connection.getURL(), inputJson, responseCode, responseBody
-      ), e);
+    catch (IOException ioe) {
+      logSendRequestIOException(connection, ioe, inputJson);
     }
   }
 
@@ -103,9 +109,21 @@ public class HttpClientImpl implements HttpClient {
     }
   }
 
-  private String readResult(HttpURLConnection connection) {
+  private String tryReadResultString(HttpURLConnection connection) {
     try {
       return readResultString(connection);
+    }
+    catch (IOException e) {
+      throw new HttpCallException(String.format(
+          "Can't read response from api call to %s",
+          connection.getURL()
+      ), e);
+    }
+  }
+
+  private byte[] tryReadBinaryResult(HttpURLConnection connection) {
+    try {
+      return readBinaryResult(connection);
     }
     catch (IOException e) {
       throw new HttpCallException(String.format(
@@ -127,5 +145,32 @@ public class HttpClientImpl implements HttpClient {
     }
 
     return result.toString();
+  }
+
+  private byte[] readBinaryResult(HttpURLConnection connection) throws IOException {
+    BufferedInputStream stream = new BufferedInputStream(connection.getInputStream());
+    return StreamUtil.toByteArray(stream);
+  }
+
+  private boolean isOctetStream(HttpURLConnection connection) {
+    return connection.getHeaderField("Content-Type").toLowerCase().contains("application/octet-stream");
+  }
+
+  private void logSendRequestIOException(HttpURLConnection connection, IOException ioe, String inputJson) {
+    int responseCode = getResponseCode(connection);
+    String responseBody;
+    if (isOctetStream(connection)) {
+      responseBody = "Binary Content";
+    }
+    else {
+      responseBody = tryReadResultString(connection);
+    }
+    throw new HttpCallException(String.format(
+        "Failed to call api endpoint [%s], input: [%s], status: [%s], response: %s",
+        connection.getURL(),
+        inputJson,
+        responseCode,
+        responseBody
+    ), ioe);
   }
 }
