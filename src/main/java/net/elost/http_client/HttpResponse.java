@@ -1,7 +1,5 @@
 package net.elost.http_client;
 
-import java.util.Arrays;
-
 public class HttpResponse {
   private final HttpMethod httpMethod;
   private final String url;
@@ -55,11 +53,14 @@ public class HttpResponse {
 
   @Override
   public String toString() {
+    String sizeUnit = (responseBinaryBody != null && responseBinaryBody.length == 1) ? "byte" : "bytes";
+    int binaryBodyLength = responseBinaryBody == null ? 0 : responseBinaryBody.length;
     return "request method: " + httpMethod.name() + " \n"
         + "request url: " + url + " \n"
         + "request body: " + requestBody + " \n"
         + "response code: " + code + " \n"
         + "response body: " + responseBody + " \n"
-        + "response binary body: " + Arrays.toString(responseBinaryBody);
+        + "response binary body length: " + String.valueOf(binaryBodyLength)
+        + " " + sizeUnit;
   }
 }
