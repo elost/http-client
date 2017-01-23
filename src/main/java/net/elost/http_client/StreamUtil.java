@@ -8,6 +8,9 @@ import java.io.OutputStream;
 public class StreamUtil {
   /**
    * Reads all bytes from an input stream into a byte array. Does not close the stream.
+   * The method is adopted from
+   * <a href='https://github.com/google/guava/blob/master/guava/src/com/google/common/io/ByteStreams.java'>
+   *   com.google.common.io.ByteStreams</a>
    *
    * @param in the input stream to read from
    * @return a byte array containing all the bytes from the stream
@@ -25,6 +28,9 @@ public class StreamUtil {
   /**
    * Copies all bytes from the input stream to the output stream. Does not close or flush either
    * stream.
+   * The method is adopted from
+   * <a href='https://github.com/google/guava/blob/master/guava/src/com/google/common/io/ByteStreams.java'>
+   *   com.google.common.io.ByteStreams</a>
    *
    * @param from the input stream to read from
    * @param to   the output stream to write to
