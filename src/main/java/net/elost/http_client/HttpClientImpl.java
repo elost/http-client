@@ -135,7 +135,7 @@ public class HttpClientImpl implements HttpClient {
 
   private String readResultString(HttpURLConnection connection) throws IOException {
     InputStream stream = connection.getInputStream();
-    InputStreamReader isReader = new InputStreamReader(stream);
+    InputStreamReader isReader = new InputStreamReader(stream, "UTF-8");
     BufferedReader reader = new BufferedReader(isReader);
 
     StringBuilder result = new StringBuilder();
