@@ -1,5 +1,9 @@
 package net.elost.http_client;
 
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
+
 public class HttpResponse {
   private final HttpMethod httpMethod;
   private final String url;
@@ -8,23 +12,27 @@ public class HttpResponse {
   private final int code;
   private final String responseBody;
   private final byte[] responseBinaryBody;
+  private final Map<String, List<String>> headers;
 
-  public HttpResponse(HttpMethod httpMethod, String url, String requestBody, int code, String responseBody) {
+  private HttpResponse(HttpMethod httpMethod, HttpURLConnection connection, String requestBody, int code,
+                       String responseBody, byte[] responseBinaryBody) {
     this.httpMethod = httpMethod;
-    this.url = url;
+    this.url = connection.getURL().toString();
     this.requestBody = requestBody;
+
     this.code = code;
+    this.headers = connection.getHeaderFields();
+
     this.responseBody = responseBody;
-    this.responseBinaryBody = null;
+    this.responseBinaryBody = responseBinaryBody;
   }
 
-  public HttpResponse(HttpMethod httpMethod, String url, String requestBody, int code, byte[] responseBinaryBody) {
-    this.httpMethod = httpMethod;
-    this.url = url;
-    this.requestBody = requestBody;
-    this.code = code;
-    this.responseBody = null;
-    this.responseBinaryBody = responseBinaryBody;
+  public HttpResponse(HttpMethod httpMethod, HttpURLConnection connection, String requestBody, int code, byte[] responseBinaryBody) {
+    this(httpMethod, connection, requestBody, code, null, responseBinaryBody);
+  }
+
+  public HttpResponse(HttpMethod httpMethod, HttpURLConnection connection, String requestBody, int code, String responseBody) {
+    this(httpMethod, connection, requestBody, code, responseBody, null);
   }
 
   public HttpMethod getHttpMethod() {
@@ -62,5 +70,9 @@ public class HttpResponse {
         + "response body: " + responseBody + " \n"
         + "response binary body length: " + String.valueOf(binaryBodyLength)
         + " " + sizeUnit;
+  }
+
+  public Map<String, List<String>> getHeaders() {
+    return headers;
   }
 }

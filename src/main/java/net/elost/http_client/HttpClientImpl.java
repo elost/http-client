@@ -57,11 +57,11 @@ public class HttpClientImpl implements HttpClient {
     int status = getResponseCode(connection);
     if (isOctetStream(connection)) {
       byte[] result = tryReadBinaryResult(connection);
-      return new HttpResponse(method, connection.getURL().toString(), input, status, result);
+      return new HttpResponse(method, connection, input, status, result);
     }
     else {
       String result = tryReadResultString(connection);
-      return new HttpResponse(method, connection.getURL().toString(), input, status, result);
+      return new HttpResponse(method, connection, input, status, result);
     }
   }
 
