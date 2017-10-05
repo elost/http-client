@@ -59,6 +59,10 @@ public class HttpResponse {
     return responseBinaryBody;
   }
 
+  public Map<String, List<String>> getHeaders() {
+    return headers;
+  }
+
   @Override
   public String toString() {
     String sizeUnit = (responseBinaryBody != null && responseBinaryBody.length == 1) ? "byte" : "bytes";
@@ -67,12 +71,10 @@ public class HttpResponse {
         + "request url: " + url + " \n"
         + "request body: " + requestBody + " \n"
         + "response code: " + code + " \n"
+        + "response headers count: " + headers.size() + "\n"
         + "response body: " + responseBody + " \n"
         + "response binary body length: " + String.valueOf(binaryBodyLength)
         + " " + sizeUnit;
   }
 
-  public Map<String, List<String>> getHeaders() {
-    return headers;
-  }
 }
