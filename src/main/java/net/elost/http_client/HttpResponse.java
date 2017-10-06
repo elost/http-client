@@ -1,30 +1,48 @@
 package net.elost.http_client;
 
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
+
 public class HttpResponse {
-  private final HttpMethod httpMethod;
-  private final String url;
-  private final String requestBody;
+  private HttpMethod httpMethod;
+  private String url;
+  private String requestBody;
 
-  private final int code;
-  private final String responseBody;
-  private final byte[] responseBinaryBody;
+  private int code;
+  private String responseBody;
+  private byte[] responseBinaryBody;
 
-  public HttpResponse(HttpMethod httpMethod, String url, String requestBody, int code, String responseBody) {
-    this.httpMethod = httpMethod;
-    this.url = url;
-    this.requestBody = requestBody;
-    this.code = code;
-    this.responseBody = responseBody;
-    this.responseBinaryBody = null;
+  private Map<String, List<String>> headers;
+
+  public static class Builder {
+
+    private HttpResponse response = new HttpResponse();
+
+    public Builder(HttpMethod httpMethod, HttpURLConnection connection, String requestBody, int responseCode) {
+      response.httpMethod = httpMethod;
+      response.url = connection.getURL().toString();
+      response.requestBody = requestBody;
+      response.code = responseCode;
+      response.headers = connection.getHeaderFields();
+    }
+
+    public Builder responseBody(String responseBody) {
+      response.responseBody = responseBody;
+      return this;
+    }
+
+    public Builder responseBinaryBody(byte[] responseBinaryBody) {
+      response.responseBinaryBody = responseBinaryBody;
+      return this;
+    }
+
+    public HttpResponse build() {
+      return response;
+    }
   }
 
-  public HttpResponse(HttpMethod httpMethod, String url, String requestBody, int code, byte[] responseBinaryBody) {
-    this.httpMethod = httpMethod;
-    this.url = url;
-    this.requestBody = requestBody;
-    this.code = code;
-    this.responseBody = null;
-    this.responseBinaryBody = responseBinaryBody;
+  private HttpResponse() {
   }
 
   public HttpMethod getHttpMethod() {
@@ -49,6 +67,10 @@ public class HttpResponse {
 
   public byte[] getResponseBinaryBody() {
     return responseBinaryBody;
+  }
+
+  public Map<String, List<String>> getHeaders() {
+    return headers;
   }
 
   @Override
