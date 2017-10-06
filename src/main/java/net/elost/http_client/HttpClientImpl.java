@@ -167,7 +167,13 @@ public class HttpClientImpl implements HttpClient {
   }
 
   private void logSendRequestIOException(HttpURLConnection connection, IOException ioe, String inputJson) {
-    int responseCode = getResponseCode(connection);
+    int responseCode = -1;
+    try {
+      responseCode = getResponseCode(connection);
+    }
+    catch (Exception e) {
+    }
+
     String responseBody;
     if (isOctetStream(connection)) {
       responseBody = "Binary Content";
