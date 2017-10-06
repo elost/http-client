@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class HttpClientImpl implements HttpClient {
@@ -56,17 +55,24 @@ public class HttpClientImpl implements HttpClient {
     sendRequest(connection, input);
 
     int status = getResponseCode(connection);
-    HttpResponse.Builder responseBuilder = new HttpResponse.Builder(method, connection, input, status);
+
+    HttpResponse response = new HttpResponse()
+        .httpMethod(method)
+        .url(connection.getURL().toString())
+        .requestBody(input)
+        .code(status)
+        .responseHeaders(connection.getHeaderFields());
+
     if (isOctetStream(connection)) {
       byte[] result = tryReadBinaryResult(connection);
-      responseBuilder.responseBinaryBody(result);
+      response.responseBinaryBody(result);
     }
     else {
       String result = tryReadResultString(connection);
-      responseBuilder.responseBody(result);
+      response.responseBody(result);
     }
 
-    return responseBuilder.build();
+    return response;
   }
 
   private HttpURLConnection connect(HttpMethod method, String url, String contentType, Map<String, String> headers) {

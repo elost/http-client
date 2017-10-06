@@ -1,6 +1,5 @@
 package net.elost.http_client;
 
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,64 +12,69 @@ public class HttpResponse {
   private String responseBody;
   private byte[] responseBinaryBody;
 
-  private Map<String, List<String>> headers;
-
-  public static class Builder {
-
-    private HttpResponse response = new HttpResponse();
-
-    public Builder(HttpMethod httpMethod, HttpURLConnection connection, String requestBody, int responseCode) {
-      response.httpMethod = httpMethod;
-      response.url = connection.getURL().toString();
-      response.requestBody = requestBody;
-      response.code = responseCode;
-      response.headers = connection.getHeaderFields();
-    }
-
-    public Builder responseBody(String responseBody) {
-      response.responseBody = responseBody;
-      return this;
-    }
-
-    public Builder responseBinaryBody(byte[] responseBinaryBody) {
-      response.responseBinaryBody = responseBinaryBody;
-      return this;
-    }
-
-    public HttpResponse build() {
-      return response;
-    }
-  }
-
-  private HttpResponse() {
-  }
+  private Map<String, List<String>> responseHeaders;
 
   public HttpMethod getHttpMethod() {
     return httpMethod;
+  }
+
+  public HttpResponse httpMethod(HttpMethod httpMethod) {
+    this.httpMethod = httpMethod;
+    return this;
   }
 
   public String getUrl() {
     return url;
   }
 
+  public HttpResponse url(String url) {
+    this.url = url;
+    return this;
+  }
+
   public String getRequestBody() {
     return requestBody;
+  }
+
+  public HttpResponse requestBody(String requestBody) {
+    this.requestBody = requestBody;
+    return this;
   }
 
   public int getCode() {
     return code;
   }
 
+  public HttpResponse code(int code) {
+    this.code = code;
+    return this;
+  }
+
   public String getResponseBody() {
     return responseBody;
+  }
+
+  public HttpResponse responseBody(String responseBody) {
+    this.responseBody = responseBody;
+    return this;
   }
 
   public byte[] getResponseBinaryBody() {
     return responseBinaryBody;
   }
 
-  public Map<String, List<String>> getHeaders() {
-    return headers;
+  public HttpResponse responseBinaryBody(byte[] responseBinaryBody) {
+    this.responseBinaryBody = responseBinaryBody;
+    return this;
+  }
+
+  public Map<String, List<String>> getResponseHeaders() {
+    return responseHeaders;
+  }
+
+  public HttpResponse responseHeaders(Map<String, List<String>> headers) {
+    this.responseHeaders = headers;
+    return this;
   }
 
   @Override
