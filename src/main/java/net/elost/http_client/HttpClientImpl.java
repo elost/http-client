@@ -77,12 +77,20 @@ public class HttpClientImpl implements HttpClient {
         .code(status)
         .responseHeaders(connection.getHeaderFields());
 
-    if (isOctetStream(connection)) {
-      byte[] result = tryReadBinaryResult(connection);
-      response.responseBinaryBody(result);
+    boolean successStatus = status < 400;
+
+    if (successStatus) {
+      if (isOctetStream(connection)) {
+        byte[] result = tryReadBinaryResult(connection);
+        response.responseBinaryBody(result);
+      }
+      else {
+        String result = tryReadResultString(connection, true);
+        response.responseBody(result);
+      }
     }
     else {
-      String result = tryReadResultString(connection);
+      String result = tryReadResultString(connection, false);
       response.responseBody(result);
     }
 
@@ -128,9 +136,9 @@ public class HttpClientImpl implements HttpClient {
     }
   }
 
-  private String tryReadResultString(HttpURLConnection connection) {
+  private String tryReadResultString(HttpURLConnection connection, boolean success) {
     try {
-      return readResultString(connection);
+      return readResultString(connection, success);
     }
     catch (IOException e) {
       throw new HttpCallException(String.format(
@@ -152,8 +160,14 @@ public class HttpClientImpl implements HttpClient {
     }
   }
 
-  private String readResultString(HttpURLConnection connection) throws IOException {
-    InputStream stream = connection.getInputStream();
+  private String readResultString(HttpURLConnection connection, boolean success) throws IOException {
+    InputStream stream;
+    if (success) {
+      stream = connection.getInputStream();
+    }
+    else {
+      stream = connection.getErrorStream();
+    }
     InputStreamReader isReader = new InputStreamReader(stream, "UTF-8");
     BufferedReader reader = new BufferedReader(isReader);
 
@@ -188,7 +202,7 @@ public class HttpClientImpl implements HttpClient {
       responseBody = "Binary Content";
     }
     else {
-      responseBody = tryReadResultString(connection);
+      responseBody = tryReadResultString(connection, false);
     }
     throw new HttpCallException(String.format(
         "Failed to call api endpoint [%s], input: [%s], status: [%s], response: %s",
