@@ -52,7 +52,9 @@ public class HttpClientImpl implements HttpClient {
   }
 
   private HttpResponse trySendRequest(HttpMethod method, HttpURLConnection connection, String input) {
-    sendRequest(connection, input);
+    if (method != HttpMethod.GET) {
+      sendRequestBody(connection, input);
+    }
 
     int status = getResponseCode(connection);
 
@@ -92,7 +94,7 @@ public class HttpClientImpl implements HttpClient {
     }
   }
 
-  private void sendRequest(HttpURLConnection connection, String inputJson) {
+  private void sendRequestBody(HttpURLConnection connection, String inputJson) {
     try {
       DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
