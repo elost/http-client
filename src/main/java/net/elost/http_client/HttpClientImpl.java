@@ -3,7 +3,6 @@ package net.elost.http_client;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,13 +40,26 @@ public class HttpClientImpl implements HttpClient {
       String contentType,
       Map<String, String> headers
   ) {
-    HttpURLConnection connection = connect(method, url, contentType, headers);
+    HttpURLConnection connection = prepareConnection(method, url, contentType, headers);
 
     try {
+      connect(connection);
       return trySendRequest(method, connection, input);
     }
     finally {
       connection.disconnect();
+    }
+  }
+
+  private void connect(HttpURLConnection connection) {
+    try {
+      connection.connect();
+    }
+    catch (IOException e) {
+      throw new HttpCallException(String.format(
+          "Failed to connect to url: %s. Reason: %s",
+          connection.getURL(), e.getMessage()
+      ));
     }
   }
 
@@ -77,7 +89,7 @@ public class HttpClientImpl implements HttpClient {
     return response;
   }
 
-  private HttpURLConnection connect(HttpMethod method, String url, String contentType, Map<String, String> headers) {
+  private HttpURLConnection prepareConnection(HttpMethod method, String url, String contentType, Map<String, String> headers) {
     try {
       URL endpoint = new URL(url);
       HttpURLConnection connection = (HttpURLConnection) endpoint.openConnection();
@@ -101,11 +113,6 @@ public class HttpClientImpl implements HttpClient {
       writer.write(inputJson);
       writer.flush();
       writer.close();
-    }
-    catch (UnknownHostException connectionException) {
-      throw new HttpCallException(String.format(
-          "Failed to connect to url: %s", connection.getURL()
-      ), connectionException);
     }
     catch (IOException ioe) {
       logSendRequestIOException(connection, ioe, inputJson);
